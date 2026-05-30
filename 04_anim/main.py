@@ -14,7 +14,11 @@ from kivy.clock import Clock
 class Menu(Screen):
     def __init__(self, **kw):
         super().__init__(**kw)
-
+    def open_settings(self):
+        App.get_running_app().last_screen = self.manager.current
+        self.manager.current = "settings"
+        
+        
     # Перехід до екрана гри
     def go_game(self, *args):
         self.manager.current = "game"
@@ -33,10 +37,17 @@ class Menu(Screen):
 class Settings(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-
-    # Повернення до меню
+        
+    def go_back(self):
+        app = App.get_running_app()
+        self.manager.current = app.last_screen
+        
     def go_menu(self, *args):
         self.manager.current = "menu"
+        self.manager.transition.direction = "down"
+
+    def go_game(self, *args):
+        self.manager.current = "game"
         self.manager.transition.direction = "down"
 
 

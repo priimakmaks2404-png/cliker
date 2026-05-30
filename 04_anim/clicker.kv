@@ -90,19 +90,27 @@
 
 <Settings>:
     BoxLayout:
-        orientation: "vertical" 
+        orientation: "vertical"
         padding: "30dp"
-        spacing: "20dp"  
+        spacing: "20dp"
 
         Label:
-            text: "Settings"
+            text: "SETTINGS"
             font_size: "40sp"
-            
+
+        Label:
+            text: "Volume"
+
+        Slider:
+            min: 0
+            max: 100
+            value: 50
+
         ButtonMenu:
-            text: "Back"
-            size_hint_y: 0.2 
+            text: "RETURN TO GAME"
+            size_hint_y: 0.2
             on_press:
-                root.go_menu()
+                root.go_game()
 
 <RotatedImage>:
     canvas.before:
@@ -134,7 +142,7 @@
                 source: 'assets/images/back_game.png'
                 pos: self.pos
                 size: self.size
-
+    
         # Верхнє меню
         BoxLayout:
             size_hint_y: 0.12
