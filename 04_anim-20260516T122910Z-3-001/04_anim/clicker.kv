@@ -44,31 +44,25 @@
 
         canvas:
             Rectangle:
-                source: 'assets/images/back_menu.png'
+                source: 'assets/images/e1338fb4-2c9b-4539-992d-4e96cce7b215.jpg'
                 size: dp(750), self.size[1]
                 pos: self.center_x - dp(750) / 2, self.y
 
         Widget:
-            size_hint_y: 0.05
+            size_hint_y: 0.45
 
-        Label:
-            text: "UNDERWATER\nCLICKER"
-            font_size: "54sp"
-            halign: "center"
-            size_hint_y: 0.15
-
-        Image:
-            source: "assets/images/title.png"
-            allow_stretch: True
-            size_hint_y: 0.5
-   
         ButtonMenu:
             text: " PLAY "
-            size_hint_y: 0.15
+            size_hint_y: 0.10
+            width: self.texture_size[0] + dp(40)
+            pos_hint: {"center_x": 0.5}
 
             on_press: 
                 root.manager.current = "game"
                 root.manager.transition.direction = "left"
+
+        Widget:
+            size_hint_y: 0.10
 
         BoxLayout:
             size_hint_y: 0.15
@@ -97,12 +91,42 @@
         Label:
             text: "Settings"
             font_size: "40sp"
+            size_hint_y: 0.15
+        
+        BoxLayout:
+            orientation: "vertical"
+            size_hint_y: 0.3
+            spacing: "10dp"
+            
+            Label:
+                text: "Volume"
+                font_size: "28sp"
+                size_hint_y: 0.3
+            
+            BoxLayout:
+                size_hint_y: 0.7
+                spacing: "10dp"
+                
+                Slider:
+                    id: volume_slider
+                    min: 0
+                    max: 1
+                    value: app.volume
+                    on_value: app.volume = self.value
+                
+                Label:
+                    text: str(int(app.volume * 100)) + "%"
+                    font_size: "24sp"
+                    size_hint_x: 0.2
+        
+        Widget:
+            size_hint_y: 0.4
             
         ButtonMenu:
             text: "Back"
-            size_hint_y: 0.2 
+            size_hint_y: 0.15
             on_press:
-                root.go_menu()
+                root.go_back()
 
 <RotatedImage>:
     canvas.before:
@@ -116,7 +140,7 @@
 
 
 <Fish>:
-    source: 'assets/images/fish_01.png'
+    source: 'assets/images/be3dbadd-9ae5-4882-a7c1-db19071013d7.png'
     size_hint: None, None
     size: dp(200), dp(200)
     allow_stretch: True
@@ -131,7 +155,7 @@
 
         canvas:
             Rectangle:
-                source: 'assets/images/back_game.png'
+                source: 'assets/images/a41ed0e3-8338-44b5-ade5-ab200dcbbff3.jpg'
                 pos: self.pos
                 size: self.size
 
@@ -150,6 +174,14 @@
             ButtonIcon: 
                 text: '\uE08A' 
                 on_press: root.go_home()
+
+            # Кнопка-іконка "Налаштування"
+            ButtonIcon:
+                font_name: 'assets/typicons.ttf'
+                text: '\uE04F' 
+                size_hint_x: None
+                font_size: '38sp'
+                on_press: root.go_settings()
 
         # Ігрова область
         FloatLayout:
@@ -174,14 +206,6 @@
         # Нижнє меню
         BoxLayout:
             size_hint_y: 0.12
-            
-            # Кнопка-іконка "Налаштування"
-            ButtonMenu: 
-                font_name: 'assets/typicons.ttf'
-                text: '\uE04F' 
-                size_hint_x: None
-                font_size: '38sp'
-                pos_hint: {'y': 0}
 
         # Icon
         # Label:
