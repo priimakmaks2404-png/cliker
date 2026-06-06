@@ -46,6 +46,17 @@ class Settings(Screen):
         self.manager.transition.direction = direction
 
 
+class Market(Screen):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def go_back(self, *args):
+        app.previous_screen = 'game'
+        app.returning_to_game_from_market = True
+        self.manager.current = 'game'
+        self.manager.transition.direction = 'down'
+
+
 # Клас для обертання картинок; в класі, який спадковує потрібно дадати властивість angle
 class RotatedImage(Image):
     ...
@@ -124,6 +135,7 @@ class Fish(RotatedImage):
         if not self.anim_play and not self.interaction_block:
             self.hp_current -= 1
             self.GAME_SCREEN.score += 1
+            app.total_clicks = self.GAME_SCREEN.score
             
             # Воспроизводим звук клика
             app.play_sound(app.sound_click)
@@ -167,6 +179,8 @@ class Game(Screen):
     def on_pre_enter(self, *args):
         if getattr(app, 'returning_to_game_from_settings', False):
             app.returning_to_game_from_settings = False
+        elif getattr(app, 'returning_to_game_from_market', False):
+            app.returning_to_game_from_market = False
         else:
             self.score = 0
             app.LEVEL = 0
@@ -183,8 +197,18 @@ class Game(Screen):
 
     
     def on_enter(self, *args):
-        self.start_game()
-        
+        if getattr(app, 'returning_to_game_from_market', False):
+            app.returning_to_game_from_market = False
+            fish_key = app.LEVELS[app.LEVEL][self.ids.fish.fish_index]
+            self.ids.fish.source = app.FISHES[fish_key]['source']
+            if self.ids.fish.hp_current is None:
+                self.ids.fish.hp_current = app.FISHES[fish_key]['hp']
+            self.ids.fish.opacity = 1
+            self.ids.fish.interaction_block = False
+            self.ids.fish.anim_play = False
+        else:
+            self.start_game()
+
         return super().on_enter(*args)
 
     def start_game(self):
@@ -220,25 +244,34 @@ class Game(Screen):
         self.manager.current = "menu"
         self.manager.transition.direction = "right"
 
+    def go_market(self, *args):
+        app.previous_screen = "game"
+        self.manager.current = "market"
+        self.manager.transition.direction = "up"
+
 
 class ClickerApp(App):
     LEVEL = 0
     previous_screen = "menu"
     returning_to_game_from_settings = False
+    returning_to_game_from_market = False
+    total_clicks = NumericProperty(0)
     volume = NumericProperty(1.0)
 
     FISHES = {
-    'fish1':
-        {'source': 'assets/images/be3dbadd-9ae5-4882-a7c1-db19071013d7.png', 'hp': 10},
-    'fish2':
-        {'source': 'assets/images/78971469-ca2f-4739-abf8-a228d9636971.png', 'hp': 20}
+        'fish1': {'source': 'assets/images/be3dbadd-9ae5-4882-a7c1-db19071013d7.png', 'hp': 10},
+        'fish2': {'source': 'assets/images/78971469-ca2f-4739-abf8-a228d9636971.png', 'hp': 20},
+        'fish3': {'source': 'assets/images/3612a4a6-96cd-46a7-9b0e-36b5fe76694c.png', 'hp': 30},
+        'fish4': {'source': 'assets/images/f7fc2fc5-064b-4755-976d-7d583bb6cf9c.png', 'hp': 40},
+        'fish5': {'source': 'assets/images/2ed9c0da-1828-4af0-9f85-478654d80ac3.png', 'hp': 50},
     }
 
     LEVELS = [
         ['fish1', 'fish1', 'fish2'],
-        ['fish1', 'fish2', 'fish2', 'fish1'],
-        ['fish2', 'fish2', 'fish1', 'fish2'],
-        ['fish2', 'fish1', 'fish2', 'fish2', 'fish1']
+        ['fish1', 'fish2', 'fish3', 'fish4'],
+        ['fish2', 'fish4', 'fish1', 'fish3'],
+        ['fish3', 'fish1', 'fish4', 'fish2', 'fish3'],
+        ['fish2', 'fish4', 'fish3', 'fish2', 'fish5'],
     ]
 
     def build(self):
@@ -251,6 +284,7 @@ class ClickerApp(App):
         sm.add_widget(Menu(name="menu"))
         sm.add_widget(Game(name="game"))
         sm.add_widget(Settings(name="settings"))
+        sm.add_widget(Market(name="market"))
 
         return sm
     
