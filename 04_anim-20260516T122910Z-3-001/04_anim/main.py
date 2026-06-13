@@ -50,6 +50,13 @@ class Market(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
+    def can_buy(self, power):
+        thresholds = {3: 50, 5: 100, 7: 150, 9: 250, 11: 400}
+        return app.total_clicks >= thresholds.get(power, 0)
+
+    def set_click_power(self, power, *args):
+        app.click_power = power
+
     def go_back(self, *args):
         app.previous_screen = 'game'
         app.returning_to_game_from_market = True
@@ -133,9 +140,10 @@ class Fish(RotatedImage):
             return
         
         if not self.anim_play and not self.interaction_block:
-            self.hp_current -= 1
-            self.GAME_SCREEN.score += 1
-            app.total_clicks = self.GAME_SCREEN.score
+            damage = getattr(app, 'click_power', 1)
+            self.hp_current -= damage
+            self.GAME_SCREEN.score += damage
+            app.total_clicks += damage
             
             # Воспроизводим звук клика
             app.play_sound(app.sound_click)
@@ -186,6 +194,8 @@ class Game(Screen):
             app.LEVEL = 0
             self.ids.level_complete.opacity = 0
             self.ids.fish.fish_index = 0
+            self.ids.game_over_panel.opacity = 0
+            self.ids.game_over_panel.disabled = True
 
         return super().on_pre_enter(*args)
     
@@ -226,7 +236,7 @@ class Game(Screen):
             # Запланировать переход на следующий уровень через 2 секунды
             Clock.schedule_once(self.next_level, 2)
         else:
-            # Игра завершена, планируем возврат в меню через 3 секунды
+            # Игра завершена, показываем рестарт вместо возврата в меню
             Clock.schedule_once(self.game_over, 3)
     
     def next_level(self, *args):
@@ -236,8 +246,19 @@ class Game(Screen):
         self.ids.fish.new_fish()
     
     def game_over(self, *args):
-        self.manager.current = "menu"
-        self.manager.transition.direction = "right"
+        app.completed_full_runs += 1
+        self.ids.level_complete.opacity = 0
+        self.ids.game_over_panel.opacity = 1
+        self.ids.game_over_panel.disabled = False
+
+    def restart_game(self, *args):
+        self.score = 0
+        app.LEVEL = 0
+        self.ids.level_complete.opacity = 0
+        self.ids.game_over_panel.opacity = 0
+        self.ids.game_over_panel.disabled = True
+        self.ids.fish.fish_index = 0
+        self.start_game()
 
 
     def go_home(self):
@@ -256,14 +277,16 @@ class ClickerApp(App):
     returning_to_game_from_settings = False
     returning_to_game_from_market = False
     total_clicks = NumericProperty(0)
+    completed_full_runs = NumericProperty(0)
+    click_power = NumericProperty(1)
     volume = NumericProperty(1.0)
 
     FISHES = {
-        'fish1': {'source': 'assets/images/be3dbadd-9ae5-4882-a7c1-db19071013d7.png', 'hp': 10},
-        'fish2': {'source': 'assets/images/78971469-ca2f-4739-abf8-a228d9636971.png', 'hp': 20},
-        'fish3': {'source': 'assets/images/3612a4a6-96cd-46a7-9b0e-36b5fe76694c.png', 'hp': 30},
-        'fish4': {'source': 'assets/images/f7fc2fc5-064b-4755-976d-7d583bb6cf9c.png', 'hp': 40},
-        'fish5': {'source': 'assets/images/2ed9c0da-1828-4af0-9f85-478654d80ac3.png', 'hp': 50},
+        'fish1': {'source': 'assets/images/be3dbadd-9ae5-4882-a7c1-db19071013d7.png', 'hp': 2},
+        'fish2': {'source': 'assets/images/78971469-ca2f-4739-abf8-a228d9636971.png', 'hp': 4},
+        'fish3': {'source': 'assets/images/3612a4a6-96cd-46a7-9b0e-36b5fe76694c.png', 'hp': 6},
+        'fish4': {'source': 'assets/images/f7fc2fc5-064b-4755-976d-7d583bb6cf9c.png', 'hp': 8},
+        'fish5': {'source': 'assets/images/2ed9c0da-1828-4af0-9f85-478654d80ac3.png', 'hp': 10},
     }
 
     LEVELS = [

@@ -7,7 +7,7 @@
 
 
 <Widget>:
-    font_name: 'assets/Lemon-Regular.ttf'
+    font_name: 'C:/Windows/Fonts/segoeui.ttf'
 
 
 <ButtonMenu@Button>: 
@@ -15,8 +15,8 @@
     bold: True 
     background_color: 0, 0, 0, 0
     size_hint: None, None
+    size: dp(240), dp(60)
     pos_hint: {"center_x": 0.5}
-    width: self.texture_size[0] + dp(40)   # ширина = текст + відступи
 
     canvas.before:
         Color:
@@ -35,6 +35,7 @@
 
 <ButtonIcon@ButtonMenu>: 
     font_name: 'assets/typicons.ttf'
+    size: dp(64), dp(64)
 
 <Menu>:
     BoxLayout:
@@ -53,8 +54,6 @@
 
         ButtonMenu:
             text: " PLAY "
-            size_hint_y: 0.10
-            width: self.texture_size[0] + dp(40)
             pos_hint: {"center_x": 0.5}
 
             on_press: 
@@ -124,7 +123,6 @@
             
         ButtonMenu:
             text: "Back"
-            size_hint_y: 0.15
             on_press:
                 root.go_back()
 
@@ -142,12 +140,14 @@
 
         Label:
             text: "Market"
-            font_size: "42sp"
+            font_size: "30sp"
+            color: colormap['white']
             size_hint_y: 0.12
 
         Label:
             text: "Clicks: " + str(app.total_clicks)
-            font_size: "22sp"
+            font_size: "18sp"
+            color: colormap['white']
             size_hint_y: None
             height: dp(30)
 
@@ -158,32 +158,52 @@
             pos_hint: {"x": -0.03, "top": 1.10}
 
             ButtonMenu:
-                text: "⚔ Weapon 1\n+1 урон"
-                font_name: 'C:/Windows/Fonts/seguiemj.ttf'
-                font_size: "24sp"
-                size_hint_y: None
-                height: dp(70)
+                text: "Кнопка 2\n+3 клика\n50 кликов"
+                font_size: "18sp"
+                color: colormap['white']
                 pos_hint: {"x": 0.02}
+                disabled: app.total_clicks < 50
+                opacity: 1 if app.total_clicks >= 50 else 0.75
+                on_press: root.set_click_power(3)
 
             ButtonMenu:
-                text: "⚔ Weapon 2\n+3 урон"
-                font_name: 'C:/Windows/Fonts/seguiemj.ttf'
-                font_size: "24sp"
-                size_hint_y: None
-                height: dp(70)
+                text: "Кнопка 3\n+5 кликов\n100 кликов"
+                font_size: "18sp"
+                color: colormap['white']
                 pos_hint: {"x": 0.02}
+                disabled: app.total_clicks < 100
+                opacity: 1 if app.total_clicks >= 100 else 0.75
+                on_press: root.set_click_power(5)
 
             ButtonMenu:
-                text: "⚔ Weapon 3\n+5 урон"
-                font_name: 'C:/Windows/Fonts/seguiemj.ttf'
-                font_size: "24sp"
-                size_hint_y: None
-                height: dp(70)
+                text: "Кнопка 4\n+7 кликов\n150 кликов"
+                font_size: "18sp"
+                color: colormap['white']
                 pos_hint: {"x": 0.02}
+                disabled: app.total_clicks < 150
+                opacity: 1 if app.total_clicks >= 150 else 0.75
+                on_press: root.set_click_power(7)
+
+            ButtonMenu:
+                text: "Кнопка 5\n+9 кликов\n250 кликов"
+                font_size: "18sp"
+                color: colormap['white']
+                pos_hint: {"x": 0.02}
+                disabled: app.total_clicks < 250
+                opacity: 1 if app.total_clicks >= 250 else 0.75
+                on_press: root.set_click_power(9)
+
+            ButtonMenu:
+                text: "Кнопка 6\n+11 кликов\n400 кликов"
+                font_size: "18sp"
+                color: colormap['white']
+                pos_hint: {"x": 0.02}
+                disabled: app.total_clicks < 400
+                opacity: 1 if app.total_clicks >= 400 else 0.75
+                on_press: root.set_click_power(11)
 
         ButtonMenu:
             text: "Back"
-            size_hint_y: 0.15
             on_press:
                 root.go_back()
 
@@ -262,6 +282,29 @@
                 y: root.height / 2 - self.height / 2 + dp(100)
                 opacity: 0
 
+            Label:
+                text: 'Пройдено 5 уровней: ' + str(app.completed_full_runs)
+                font_size: '24sp'
+                color: colormap['white']
+                size_hint: None, None
+                size: self.texture_size
+                pos_hint: {'x': 0.02, 'top': 0.98}
+                opacity: 1 if app.completed_full_runs > 0 else 0
+
+            BoxLayout:
+                id: game_over_panel
+                orientation: 'vertical'
+                size_hint: None, None
+                size: dp(330), dp(220)
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                spacing: '14dp'
+                opacity: 0
+                disabled: True
+
+                ButtonMenu:
+                    text: 'Restart'
+                    on_press: root.restart_game()
+
         # Нижнє меню
         BoxLayout:
             size_hint_y: 0.12
@@ -272,8 +315,6 @@
             ButtonMenu:
                 text: 'Market'
                 font_size: '22sp'
-                size_hint_x: None
-                width: self.texture_size[0] + dp(24)
                 on_press: root.go_market()
 
             Widget:
